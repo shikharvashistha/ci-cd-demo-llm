@@ -1,23 +1,16 @@
-# ── Puppet Site Manifest ──────────────────────────────────────────────────────
+# Puppet Site Manifest
 #
-# PURPOSE (for students):
-#   Puppet is a "Configuration Management" tool.  Instead of SSH-ing into
-#   servers and running commands by hand, you *declare* the desired state
-#   in a manifest like this one, and Puppet makes the system match.
+# Declares the desired state for the LLM deployment environment.
+# Puppet ensures the system matches this manifest on every run (idempotent).
 #
-#   In a real deployment, a Puppet Server pushes these manifests to every
-#   node (server) in your fleet.  For this demo we run `puppet apply`
-#   locally inside a Docker container to illustrate the concept.
-#
-# WHAT THIS MANIFEST DOES:
-#   1. Creates a dedicated application user
-#   2. Creates the deployment directory with correct permissions
-#   3. Writes a JSON config file consumed by the app
-#   4. Writes a health-check script
-#   5. Ensures required packages are present
-# ─────────────────────────────────────────────────────────────────────────────
+# Resources managed:
+#   1. Required packages (curl, jq)
+#   2. Application user
+#   3. Deployment directories
+#   4. Application config file
+#   5. Health-check script
 
-# ── 1. Ensure required packages ──────────────────────────────────────────────
+# 1. Required packages
 package { 'curl':
   ensure => installed,
 }
@@ -26,7 +19,7 @@ package { 'jq':
   ensure => installed,
 }
 
-# ── 2. Application user ─────────────────────────────────────────────────────
+# 2. Application user
 user { 'llmapp':
   ensure     => present,
   home       => '/opt/llm-app',
@@ -35,7 +28,7 @@ user { 'llmapp':
   comment    => 'LLM Text Analysis Service user',
 }
 
-# ── 3. Deployment directory ──────────────────────────────────────────────────
+# 3. Deployment directory
 file { '/opt/llm-app':
   ensure  => directory,
   owner   => 'llmapp',
@@ -60,9 +53,7 @@ file { '/opt/llm-app/logs':
   require => File['/opt/llm-app'],
 }
 
-# ── 4. Application configuration file ───────────────────────────────────────
-#    The Flask app could read this at startup to get environment-specific
-#    settings (port, log level, feature flags, etc.)
+# 4. Application configuration file
 file { '/opt/llm-app/config/app.json':
   ensure  => file,
   owner   => 'llmapp',
@@ -87,15 +78,14 @@ file { '/opt/llm-app/config/app.json':
   require => File['/opt/llm-app/config'],
 }
 
-# ── 5. Health-check script ──────────────────────────────────────────────────
+# 5. Health-check script
 file { '/opt/llm-app/healthcheck.sh':
   ensure  => file,
   owner   => 'llmapp',
   group   => 'llmapp',
   mode    => '0755',
   content => '#!/bin/bash
-# Health-check script managed by Puppet
-# Verifies the LLM app is running and responsive
+# Health-check script (managed by Puppet)
 
 APP_URL="${1:-http://localhost:5000}"
 
@@ -104,23 +94,22 @@ echo "Checking LLM App health at $APP_URL ..."
 HEALTH=$(curl -sf "$APP_URL/health" | jq -r .status 2>/dev/null)
 
 if [ "$HEALTH" = "healthy" ]; then
-  echo "✅  App is healthy"
+  echo "App is healthy"
   exit 0
 else
-  echo "❌  App is NOT healthy"
+  echo "App is NOT healthy"
   exit 1
 fi
 ',
   require => [File['/opt/llm-app'], Package['curl'], Package['jq']],
 }
 
-# ── 6. Deployment log ───────────────────────────────────────────────────────
+# 6. Deployment log
 exec { 'log_puppet_run':
   command => '/bin/bash -c "echo \"[$(date -Iseconds)] Puppet applied configuration successfully\" >> /opt/llm-app/logs/puppet.log"',
   require => File['/opt/llm-app/logs'],
 }
 
-# ── Notify ───────────────────────────────────────────────────────────────────
 notify { 'puppet_done':
-  message => '🎉 Puppet has configured the LLM deployment environment!',
+  message => 'Puppet has configured the LLM deployment environment.',
 }

@@ -1,16 +1,4 @@
-"""
-Selenium UI Tests for the LLM Text Analysis Service
-=====================================================
-These tests use a remote Chrome browser (Selenium Grid / standalone-chrome)
-to verify the web UI works end-to-end.
-
-What is tested:
-  1. Page loads and title is correct
-  2. User can type text and click Analyze
-  3. Sentiment badge appears with correct class
-  4. Summary section is populated
-  5. Health and Metrics endpoints respond
-"""
+"""Selenium UI tests for the LLM Text Analysis Service."""
 
 import time
 import pytest
@@ -21,13 +9,12 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# ── Configuration ────────────────────────────────────────────────────────────
-APP_URL = "http://llm-app:5000"           # Docker service name
+
+APP_URL = "http://llm-app:5000"
 SELENIUM_HUB = "http://selenium-chrome:4444/wd/hub"
 WAIT_TIMEOUT = 20  # seconds
 
 
-# ── Fixtures ─────────────────────────────────────────────────────────────────
 
 @pytest.fixture(scope="module")
 def wait_for_app():
@@ -65,7 +52,6 @@ def driver(wait_for_app):
     pytest.fail("Could not connect to Selenium Grid")
 
 
-# ── Tests ────────────────────────────────────────────────────────────────────
 
 class TestPageLoad:
     def test_title(self, driver):

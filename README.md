@@ -1,8 +1,4 @@
-# CI/CD Demo — LLM Text Analysis Service
-
-> **Audience:** Professionals from non-CSE backgrounds  
-> **Goal:** Understand end-to-end CI/CD by seeing it work on a real LLM application
-
+# CI/CD Demo - LLM Text Analysis Service
 ---
 
 ## 🗺️ What This Demo Shows
@@ -29,11 +25,11 @@
 | **Selenium** | Browser-based UI testing | A robot that opens your website and clicks buttons to verify it works |
 | **Puppet** | Configuration management | A checklist that ensures every server is set up identically |
 | **Prometheus** | Monitoring & alerting | A dashboard that watches your app's health 24/7 |
-| **Docker** | Containerization | A shipping container — your app runs the same everywhere |
+| **Docker** | Containerization | Your app runs the same everywhere |
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ci-cd-demo-llm/
@@ -69,57 +65,58 @@ ci-cd-demo-llm/
 ├── Jenkinsfile                 ← The CI/CD pipeline definition
 ├── setup.sh                    ← One-command setup script
 ├── demo.sh                     ← Interactive demo walkthrough
+├── clean.sh                    ← Teardown and cleanup script
 └── README.md                   ← This file
 ```
 
 ---
 
-## 🚀 Quick Start (5 minutes)
+## Quick Start
 
 ### Prerequisites
 - **Docker** & **Docker Compose** installed ([Install Docker](https://docs.docker.com/get-docker/))
-- **Git** installed
 - 4 GB+ free RAM
 
-### 1. Clone & Enter
+### Scripts
+
+| Script | Purpose | Command |
+|--------|---------|---------|
+| `setup.sh` | Build images, start all services, wait for health checks | `./setup.sh` |
+| `demo.sh` | Interactive 5-part walkthrough for class presentation | `./demo.sh` |
+| `clean.sh` | Stop containers, remove volumes and built images | `./clean.sh` |
+
+### Usage
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ci-cd-demo-llm.git
-cd ci-cd-demo-llm
+# 1. Start everything (builds + health checks)
+./setup.sh
+
+# 2. Run the interactive class demo
+./demo.sh
+
+# 3. Clean up when done
+./clean.sh
 ```
 
-### 2. Start Everything
-
-```bash
-# Build and start all services
-docker compose up -d --build
-```
-
-### 3. Open the Dashboards
+### Service URLs
 
 | Service | URL | Credentials |
 |---------|-----|-------------|
-| **LLM App** | [http://localhost:5000](http://localhost:5000) | — |
-| **Jenkins** | [http://localhost:8080](http://localhost:8080) | admin / admin |
-| **Selenium Grid** | [http://localhost:4444](http://localhost:4444) | — |
-| **Selenium VNC** | [http://localhost:7900](http://localhost:7900) | secret |
-| **Prometheus** | [http://localhost:9090](http://localhost:9090) | — |
-
-### 4. Stop Everything
-
-```bash
-docker compose down
-```
+| LLM App | http://localhost:5000 | — |
+| Jenkins | http://localhost:8080 | admin / admin |
+| Selenium Grid | http://localhost:4444 | — |
+| Selenium VNC | http://localhost:7900 | secret |
+| Prometheus | http://localhost:9090 | — |
 
 ---
 
-## 🎓 Step-by-Step Demo Walkthrough
+## Step-by-Step Demo Walkthrough
 
 ### Demo 1: The Application (2 min)
 
 1. Open [http://localhost:5000](http://localhost:5000)
 2. Paste any text (an article, review, etc.)
-3. Click **⚡ Analyze**
+4. Click **Analyze**
 4. Show the **Sentiment** (positive/negative/neutral) and **Summary**
 5. Explain: *"This is the product we're building — an LLM-powered text analysis tool"*
 
@@ -178,7 +175,7 @@ docker compose down
 
 ---
 
-## 🔄 The CI/CD Pipeline Explained
+## The CI/CD Pipeline Explained
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -205,7 +202,7 @@ docker compose down
 
 ---
 
-## 📝 Key Concepts for Non-CSE Professionals
+## Key Concepts for Non-CSE Professionals
 
 ### CI/CD = Continuous Integration / Continuous Deployment
 
@@ -228,7 +225,7 @@ docker compose down
 
 ---
 
-## 🛠️ Customization
+## Customization
 
 ### Change Jenkins GitHub repo
 Edit `jenkins/casc.yaml` → update the `url` field with your actual GitHub repo URL.
@@ -241,28 +238,13 @@ Edit `prometheus/prometheus.yml` to scrape additional services.
 
 ---
 
-## 🧹 Cleanup
+## Cleanup
 
 ```bash
-# Stop all services
-docker compose down
-
-# Stop + remove all data (volumes)
-docker compose down -v
-
-# Remove built images
-docker rmi llm-text-analysis:latest
+./clean.sh
 ```
 
----
-
-## 📚 Further Reading
-
-- [Docker Getting Started](https://docs.docker.com/get-started/)
-- [Jenkins Pipeline Tutorial](https://www.jenkins.io/doc/book/pipeline/)
-- [Selenium Documentation](https://www.selenium.dev/documentation/)
-- [Puppet Overview](https://puppet.com/docs/puppet/latest/puppet_overview.html)
-- [Prometheus First Steps](https://prometheus.io/docs/introduction/first_steps/)
+This stops all containers, removes volumes (Jenkins data, Prometheus data), and deletes built images.
 
 ---
 

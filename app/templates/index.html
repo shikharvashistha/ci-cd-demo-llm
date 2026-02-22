@@ -221,7 +221,7 @@
 <body>
 
     <header>
-        <h1>🤖 LLM Text Analysis</h1>
+        <h1>LLM Text Analysis</h1>
         <p>Sentiment Analysis &amp; Summarization — CI/CD Demo</p>
     </header>
 
@@ -238,7 +238,7 @@
         <textarea id="inputText"
             placeholder="Paste any text here — a review, an article, a paragraph — and click Analyze…">Artificial intelligence is transforming every industry. Companies are adopting machine learning to automate repetitive tasks and gain insights from data. Natural language processing enables chatbots and virtual assistants to understand human language. However, deploying AI models in production requires robust CI/CD pipelines, monitoring, and configuration management to ensure reliability and scalability.</textarea>
 
-        <button class="btn" id="analyzeBtn" onclick="analyze()">⚡ Analyze</button>
+        <button class="btn" id="analyzeBtn" onclick="analyze()">Analyze</button>
 
         <div id="results">
             <div class="result-section">
@@ -314,7 +314,7 @@
             } catch (err) {
                 alert('Error: ' + err.message);
             } finally {
-                btn.disabled = false; btn.textContent = '⚡ Analyze';
+                btn.disabled = false; btn.textContent = 'Analyze';
             }
         }
     </script>

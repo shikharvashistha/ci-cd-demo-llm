@@ -1,4 +1,4 @@
-# ── Selenium Test Runner Dockerfile ───────────────────────────────────────────
+# Selenium test runner
 FROM python:3.11-slim
 
 RUN apt-get update && \
@@ -14,5 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# The test script waits for the app to be ready before running
 CMD ["pytest", "test_ui.py", "-v", "--tb=short"]

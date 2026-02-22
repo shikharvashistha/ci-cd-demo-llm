@@ -19,8 +19,6 @@ def client():
         yield client
 
 
-# ── Sentiment tests ──────────────────────────────────────────────────────────
-
 class TestSentiment:
     def test_positive(self):
         result = analyze_sentiment("I love this product! It is amazing and wonderful.")
@@ -43,8 +41,6 @@ class TestSentiment:
         assert "subjectivity" in result
 
 
-# ── Summarization tests ─────────────────────────────────────────────────────
-
 class TestSummarization:
     def test_short_text_unchanged(self):
         text = "Short sentence."
@@ -64,8 +60,6 @@ class TestSummarization:
         # Summary should be shorter than original
         assert len(summary) < len(text)
 
-
-# ── API endpoint tests ──────────────────────────────────────────────────────
 
 class TestAPI:
     def test_index_returns_200(self, client):

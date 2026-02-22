@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# ══════════════════════════════════════════════════════════════════════════════
-#  demo.sh — Interactive walkthrough for class presentation
-# ══════════════════════════════════════════════════════════════════════════════
+# demo.sh - Interactive walkthrough for class presentation
 set -euo pipefail
 
 GREEN='\033[0;32m'
@@ -18,37 +16,35 @@ pause() {
 
 clear
 echo -e "${CYAN}${BOLD}"
-echo "═══════════════════════════════════════════════════════════"
-echo "   CI/CD Demo — LLM Text Analysis Service"
-echo "   Interactive Walkthrough for Class"
-echo "═══════════════════════════════════════════════════════════"
+echo "CI/CD Demo - LLM Text Analysis Service"
+echo "Interactive Walkthrough"
 echo -e "${NC}"
 echo ""
 echo "This demo walks through 5 live demos:"
 echo ""
-echo "  1. 🤖 The LLM Application"
-echo "  2. 🔧 Jenkins CI/CD Pipeline"
-echo "  3. 🌐 Selenium Automated Testing"
-echo "  4. 📋 Puppet Configuration Management"
-echo "  5. 📊 Prometheus Monitoring"
+echo "  1. The LLM Application"
+echo "  2. Jenkins CI/CD Pipeline"
+echo "  3. Selenium Automated Testing"
+echo "  4. Puppet Configuration Management"
+echo "  5. Prometheus Monitoring"
 echo ""
 pause
 
-# ── Demo 1 ───────────────────────────────────────────────────────────────────
+# Demo 1
 clear
-echo -e "${CYAN}${BOLD}══════ Demo 1: The LLM Application ══════${NC}"
+echo -e "${CYAN}${BOLD}Demo 1: The LLM Application${NC}"
 echo ""
 echo "Open in your browser:  ${GREEN}http://localhost:5000${NC}"
 echo ""
 echo "What to show:"
-echo "  • Paste some text (a product review, article, etc.)"
-echo "  • Click ⚡ Analyze"
-echo "  • Point out:  Sentiment (positive/negative/neutral)"
-echo "  •             Summary (shortened version)"
-echo "  •             Stats (character reduction %)"
+echo "  - Paste some text (a product review, article, etc.)"
+echo "  - Click Analyze"
+echo "  - Point out: Sentiment (positive/negative/neutral)"
+echo "  -            Summary (shortened version)"
+echo "  -            Stats (character reduction %)"
 echo ""
 echo -e "${YELLOW}Key message:${NC}"
-echo "  'This is our product — an LLM-powered text analysis tool."
+echo "  'This is our product - an LLM-powered text analysis tool."
 echo "   Now let's see how we automate building, testing, and deploying it.'"
 echo ""
 echo "Also show the API directly:"
@@ -60,9 +56,9 @@ echo "Health check result:"
 curl -s http://localhost:5000/health 2>/dev/null | python3 -m json.tool 2>/dev/null || echo "(App not running — start with: docker compose up -d)"
 pause
 
-# ── Demo 2 ───────────────────────────────────────────────────────────────────
+# Demo 2
 clear
-echo -e "${CYAN}${BOLD}══════ Demo 2: Jenkins CI/CD Pipeline ══════${NC}"
+echo -e "${CYAN}${BOLD}Demo 2: Jenkins CI/CD Pipeline${NC}"
 echo ""
 echo "Open in your browser:  ${GREEN}http://localhost:8080${NC}"
 echo "  Login:  admin / admin"
@@ -83,9 +79,9 @@ echo "  'Every time a developer pushes code to GitHub, this entire process"
 echo "   runs automatically. If ANY step fails, the code NEVER reaches production.'"
 pause
 
-# ── Demo 3 ───────────────────────────────────────────────────────────────────
+# Demo 3
 clear
-echo -e "${CYAN}${BOLD}══════ Demo 3: Selenium UI Testing ══════${NC}"
+echo -e "${CYAN}${BOLD}Demo 3: Selenium UI Testing${NC}"
 echo ""
 echo "Watch live in browser:  ${GREEN}http://localhost:7900${NC}  (password: secret)"
 echo "Selenium Grid:          ${GREEN}http://localhost:4444${NC}"
@@ -99,9 +95,9 @@ echo "  'Selenium is like a robot QA tester. It opens a real browser, types text
 echo "   clicks buttons, and verifies everything works — 24/7, no human needed.'"
 pause
 
-# ── Demo 4 ───────────────────────────────────────────────────────────────────
+# Demo 4
 clear
-echo -e "${CYAN}${BOLD}══════ Demo 4: Puppet Configuration ══════${NC}"
+echo -e "${CYAN}${BOLD}Demo 4: Puppet Configuration${NC}"
 echo ""
 echo "Running Puppet to configure the deployment environment..."
 echo ""
@@ -117,9 +113,9 @@ echo "   Run it once or 100 times — the result is always the same."
 echo "   This prevents the \"works on my machine\" problem.'"
 pause
 
-# ── Demo 5 ───────────────────────────────────────────────────────────────────
+# Demo 5
 clear
-echo -e "${CYAN}${BOLD}══════ Demo 5: Prometheus Monitoring ══════${NC}"
+echo -e "${CYAN}${BOLD}Demo 5: Prometheus Monitoring${NC}"
 echo ""
 echo "Open in your browser:  ${GREEN}http://localhost:9090${NC}"
 echo ""
@@ -147,35 +143,33 @@ echo "  'Prometheus watches your app in real-time. If latency spikes or the app"
 echo "   goes down, it fires alerts — often before users even notice a problem.'"
 pause
 
-# ── Summary ──────────────────────────────────────────────────────────────────
+# Summary
 clear
 echo -e "${GREEN}${BOLD}"
-echo "═══════════════════════════════════════════════════════════"
-echo "   Demo Complete!"
-echo "═══════════════════════════════════════════════════════════"
+echo "Demo Complete"
 echo -e "${NC}"
 echo ""
 echo "  What we demonstrated:"
 echo ""
-echo "  ✅  GitHub     → Source code management"
-echo "  ✅  Jenkins    → Automated CI/CD pipeline"
-echo "  ✅  Selenium   → Automated UI testing"
-echo "  ✅  Puppet     → Configuration management"
-echo "  ✅  Prometheus → Monitoring & alerting"
-echo "  ✅  Docker     → Containerization (runs everything)"
+echo "  - GitHub     : Source code management"
+echo "  - Jenkins    : Automated CI/CD pipeline"
+echo "  - Selenium   : Automated UI testing"
+echo "  - Puppet     : Configuration management"
+echo "  - Prometheus : Monitoring and alerting"
+echo "  - Docker     : Containerization (runs everything)"
 echo ""
 echo "  The big picture:"
 echo ""
-echo "    Developer pushes code → GitHub → Jenkins pipeline runs → "
-echo "    Tests pass → Puppet configures servers → App deployed → "
+echo "    Developer pushes code -> GitHub -> Jenkins pipeline runs -> "
+echo "    Tests pass -> Puppet configures servers -> App deployed -> "
 echo "    Prometheus monitors health"
 echo ""
 echo "  All of this happens AUTOMATICALLY on every code change."
 echo ""
 echo -e "  ${CYAN}Services still running at:${NC}"
-echo "    🤖 App:        http://localhost:5000"
-echo "    🔧 Jenkins:    http://localhost:8080"
-echo "    📊 Prometheus: http://localhost:9090"
+echo "    App:        http://localhost:5000"
+echo "    Jenkins:    http://localhost:8080"
+echo "    Prometheus: http://localhost:9090"
 echo ""
 echo "  To stop:  docker compose down"
 echo ""

@@ -1,24 +1,22 @@
-# ── Prometheus Configuration ──────────────────────────────────────────────────
-# Prometheus scrapes metrics from the LLM app and Jenkins every 15 seconds.
+# Prometheus Configuration - scrapes metrics from app and Jenkins every 15s.
 
 global:
-  scrape_interval: 15s          # How often to pull metrics
-  evaluation_interval: 15s      # How often to evaluate alert rules
+  scrape_interval: 15s
+  evaluation_interval: 15s
   scrape_timeout: 10s
 
-# ── Alert rules file ─────────────────────────────────────────────────────────
 rule_files:
   - "alert_rules.yml"
 
-# ── Scrape targets ───────────────────────────────────────────────────────────
+# Scrape targets
 scrape_configs:
 
-  # 1. Prometheus itself
+  # Prometheus self-monitoring
   - job_name: "prometheus"
     static_configs:
       - targets: ["localhost:9090"]
 
-  # 2. LLM Flask Application
+  # LLM Flask Application
   - job_name: "llm-app"
     metrics_path: "/metrics"
     static_configs:
@@ -27,7 +25,7 @@ scrape_configs:
           service: "llm-text-analysis"
           environment: "production"
 
-  # 3. Jenkins (requires Prometheus plugin)
+  # Jenkins (requires Prometheus plugin)
   - job_name: "jenkins"
     metrics_path: "/prometheus/"
     static_configs:

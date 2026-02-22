@@ -1,12 +1,10 @@
-# ── LLM App Dockerfile ───────────────────────────────────────────────────────
-# Multi-stage build: keeps the final image small
-# Stage 1 ─ install dependencies
+# LLM App - multi-stage build
 FROM python:3.11-slim AS builder
 WORKDIR /install
 COPY requirements.txt .
 RUN pip install --prefix=/install/deps --no-cache-dir -r requirements.txt
 
-# Stage 2 ─ runtime
+# Runtime
 FROM python:3.11-slim
 LABEL maintainer="ci-cd-demo"
 
@@ -14,7 +12,7 @@ WORKDIR /app
 COPY --from=builder /install/deps /usr/local
 COPY . .
 
-# Download TextBlob / NLTK corpora (punkt_tab is needed by newer NLTK)
+# Download TextBlob/NLTK corpora
 RUN python -m textblob.download_corpora && \
     python -c "import nltk; nltk.download('punkt_tab')"
 

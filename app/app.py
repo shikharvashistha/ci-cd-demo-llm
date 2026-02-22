@@ -1,12 +1,10 @@
 """
 LLM Text Analysis Service
-==========================
-A simple Flask application that provides:
-  1. Sentiment Analysis  (positive / negative / neutral)
-  2. Text Summarization  (extractive – picks key sentences)
-  3. Prometheus metrics   (/metrics endpoint)
 
-This is the "product" that our CI/CD pipeline builds, tests, and deploys.
+Flask application providing:
+  - Sentiment analysis (positive / negative / neutral)
+  - Extractive text summarization
+  - Prometheus metrics (/metrics endpoint)
 """
 
 import time
@@ -17,10 +15,10 @@ from prometheus_client import (
     Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 )
 
-# ── Flask app ────────────────────────────────────────────────────────────────
+
 app = Flask(__name__)
 
-# ── Prometheus metrics ───────────────────────────────────────────────────────
+# Prometheus metrics
 REQUEST_COUNT = Counter(
     "llm_requests_total",
     "Total requests to the LLM service",
@@ -37,7 +35,7 @@ SENTIMENT_COUNT = Counter(
     ["sentiment"],
 )
 
-# ── Helper functions ─────────────────────────────────────────────────────────
+
 
 def analyze_sentiment(text: str) -> dict:
     """Return sentiment label + confidence score using TextBlob."""
@@ -90,7 +88,6 @@ def summarize_text(text: str, num_sentences: int = 3) -> str:
     return " ".join(s for _, _, s in top)
 
 
-# ── Routes ───────────────────────────────────────────────────────────────────
 
 @app.route("/")
 def index():
@@ -133,7 +130,7 @@ def metrics():
     return generate_latest(), 200, {"Content-Type": CONTENT_TYPE_LATEST}
 
 
-# ── Entrypoint ───────────────────────────────────────────────────────────────
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
