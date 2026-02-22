@@ -1,0 +1,4 @@
+flask==3.0.*
+textblob==0.18.*
+prometheus-client==0.21.*
+gunicorn==22.*

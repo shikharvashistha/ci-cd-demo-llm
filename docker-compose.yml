@@ -1,0 +1,109 @@
+# ══════════════════════════════════════════════════════════════════════════════
+#  CI/CD Demo — docker-compose.yml
+# ══════════════════════════════════════════════════════════════════════════════
+#  Brings up the entire pipeline in one command:
+#     docker compose up -d --build
+#
+#  Services:
+#    llm-app          → The LLM Flask application        (port 5000)
+#    jenkins          → Jenkins CI/CD server              (port 8080)
+#    selenium-chrome  → Headless Chrome for UI tests      (port 4444)
+#    selenium-tests   → Runs Selenium test suite
+#    puppet           → Applies Puppet configuration
+#    prometheus       → Metrics & monitoring              (port 9090)
+# ══════════════════════════════════════════════════════════════════════════════
+
+services:
+
+  # ── 1. LLM Application ──────────────────────────────────────────────────────
+  llm-app:
+    build: ./app
+    container_name: llm-app
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - ci-cd-net
+    restart: unless-stopped
+
+  # ── 2. Jenkins ─────────────────────────────────────────────────────────────
+  jenkins:
+    build: ./jenkins
+    container_name: jenkins
+    ports:
+      - "8080:8080"       # Jenkins UI
+      - "50000:50000"     # Agent communication
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock   # Let Jenkins build Docker images
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    networks:
+      - ci-cd-net
+    restart: unless-stopped
+
+  # ── 3. Selenium Chrome (headless browser) ──────────────────────────────────
+  selenium-chrome:
+    image: selenium/standalone-chrome:latest
+    container_name: selenium-chrome
+    ports:
+      - "4444:4444"       # Selenium Grid hub
+      - "7900:7900"       # noVNC (watch tests live in browser!)
+    shm_size: "2g"
+    networks:
+      - ci-cd-net
+    restart: unless-stopped
+
+  # ── 4. Selenium Test Runner ────────────────────────────────────────────────
+  selenium-tests:
+    build: ./selenium-tests
+    container_name: selenium-tests
+    depends_on:
+      llm-app:
+        condition: service_healthy
+      selenium-chrome:
+        condition: service_started
+    networks:
+      - ci-cd-net
+
+  # ── 5. Puppet (Configuration Management) ──────────────────────────────────
+  puppet:
+    build: ./puppet
+    container_name: puppet
+    networks:
+      - ci-cd-net
+
+  # ── 6. Prometheus (Monitoring) ─────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.enable-lifecycle"            # Allows config reload via API
+    depends_on:
+      llm-app:
+        condition: service_started
+    networks:
+      - ci-cd-net
+    restart: unless-stopped
+
+# ── Shared network ──────────────────────────────────────────────────────────
+networks:
+  ci-cd-net:
+    driver: bridge
+
+# ── Persistent volumes ──────────────────────────────────────────────────────
+volumes:
+  jenkins_home:
+  prometheus_data:

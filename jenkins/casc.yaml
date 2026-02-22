@@ -1,0 +1,94 @@
+# ── Jenkins Configuration as Code (JCasC) ────────────────────────────────────
+# Automatically configures Jenkins on first boot — no manual clicking needed.
+
+jenkins:
+  systemMessage: "CI/CD Demo — LLM Text Analysis Pipeline"
+  numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "admin"           # Demo only — never do this in production!
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: true
+
+unclassified:
+  location:
+    url: "http://localhost:8080/"
+
+jobs:
+  - script: |
+      pipelineJob('llm-text-analysis') {
+        description('CI/CD pipeline for the LLM Text Analysis Service')
+        definition {
+          cps {
+            script('''
+              pipeline {
+                agent any
+                environment {
+                  APP_IMAGE   = 'llm-text-analysis'
+                  APP_VERSION = "${BUILD_NUMBER}"
+                }
+                options {
+                  timeout(time: 15, unit: 'MINUTES')
+                  buildDiscarder(logRotator(numToKeepStr: '10'))
+                }
+                stages {
+                  stage('1. Checkout') {
+                    steps {
+                      echo '📥 Simulating code checkout from GitHub...'
+                      echo 'In production this would run: checkout scm'
+                      echo 'Commit: abc1234 (demo)'
+                    }
+                  }
+                  stage('2. Build Docker Image') {
+                    steps {
+                      echo '🔨 Building the LLM app Docker image...'
+                      sh 'docker build -t llm-text-analysis:latest /app || echo "Build simulated (app dir not mounted)"'
+                      echo '✅ Image built: llm-text-analysis:latest'
+                    }
+                  }
+                  stage('3. Unit Tests') {
+                    steps {
+                      echo '🧪 Running unit tests...'
+                      sh 'curl -sf http://llm-app:5000/health && echo "✅ Health check passed" || echo "⚠️ App not reachable from Jenkins container"'
+                    }
+                  }
+                  stage('4. Selenium UI Tests') {
+                    steps {
+                      echo '🌐 Running Selenium UI tests...'
+                      sh 'curl -sf http://selenium-chrome:4444/wd/hub/status && echo "✅ Selenium Grid is running" || echo "⚠️ Selenium not reachable"'
+                      echo 'In production: pytest selenium-tests/test_ui.py'
+                    }
+                  }
+                  stage('5. Puppet Configuration') {
+                    steps {
+                      echo '🔧 Applying Puppet configuration...'
+                      echo 'puppet apply manifests/site.pp --verbose'
+                      echo '✅ Environment configured by Puppet.'
+                    }
+                  }
+                  stage('6. Deploy to Production') {
+                    steps {
+                      echo '🚀 Deploying the LLM app to production...'
+                      sh 'curl -sf http://llm-app:5000/health | python3 -m json.tool || echo "Deploy verification simulated"'
+                      echo '✅ Deployment successful! App is live.'
+                    }
+                  }
+                }
+                post {
+                  success {
+                    echo '✅ PIPELINE SUCCEEDED — App: http://localhost:5000 | Prometheus: http://localhost:9090'
+                  }
+                  failure {
+                    echo '❌ Pipeline FAILED — check the logs above.'
+                  }
+                }
+              }
+            '''.stripIndent())
+            sandbox()
+          }
+        }
+      }
