@@ -1,0 +1,23 @@
+# ── Git ignores ──────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+.env
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Docker volumes (local data)
+prometheus_data/
+jenkins_home/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

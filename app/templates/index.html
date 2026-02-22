@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LLM Text Analysis Service</title>
+    <style>
+        /* ── Reset & base ───────────────────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        /* ── Header ─────────────────────────────────────────────────── */
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: #38bdf8;
+        }
+
+        header p {
+            color: #94a3b8;
+            margin-top: .5rem;
+            font-size: .95rem;
+        }
+
+        /* ── Card ────────────────────────────────────────────────────── */
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, .4);
+        }
+
+        /* ── Form ────────────────────────────────────────────────────── */
+        textarea {
+            width: 100%;
+            min-height: 140px;
+            padding: 1rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
+
+        .btn {
+            margin-top: 1rem;
+            padding: .75rem 2rem;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .btn:disabled {
+            opacity: .5;
+            cursor: wait;
+        }
+
+        /* ── Results ─────────────────────────────────────────────────── */
+        #results {
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .result-section {
+            margin-bottom: 1.25rem;
+        }
+
+        .result-section h3 {
+            font-size: .85rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: #94a3b8;
+            margin-bottom: .4rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: .3rem .8rem;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: .9rem;
+        }
+
+        .badge.positive {
+            background: #166534;
+            color: #bbf7d0;
+        }
+
+        .badge.negative {
+            background: #991b1b;
+            color: #fecaca;
+        }
+
+        .badge.neutral {
+            background: #854d0e;
+            color: #fef08a;
+        }
+
+        .summary-text {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 8px;
+            line-height: 1.6;
+            font-size: .95rem;
+        }
+
+        .stats {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        .stat .label {
+            font-size: .75rem;
+            color: #94a3b8;
+        }
+
+        /* ── Footer ──────────────────────────────────────────────────── */
+        footer {
+            margin-top: 2rem;
+            font-size: .8rem;
+            color: #475569;
+            text-align: center;
+        }
+
+        footer a {
+            color: #38bdf8;
+            text-decoration: none;
+        }
+
+        /* ── Pipeline badge strip ────────────────────────────────────── */
+        .pipeline-strip {
+            display: flex;
+            gap: .5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .pipeline-strip span {
+            font-size: .7rem;
+            padding: .25rem .6rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .ps-github {
+            background: #1f2937;
+            color: #f0f6fc;
+        }
+
+        .ps-jenkins {
+            background: #d33833;
+            color: #fff;
+        }
+
+        .ps-selenium {
+            background: #43b02a;
+            color: #fff;
+        }
+
+        .ps-puppet {
+            background: #ffae1a;
+            color: #1a1a1a;
+        }
+
+        .ps-prom {
+            background: #e6522c;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>🤖 LLM Text Analysis</h1>
+        <p>Sentiment Analysis &amp; Summarization — CI/CD Demo</p>
+    </header>
+
+    <!-- Badges showing the pipeline tools -->
+    <div class="pipeline-strip">
+        <span class="ps-github">GitHub</span>
+        <span class="ps-jenkins">Jenkins</span>
+        <span class="ps-selenium">Selenium</span>
+        <span class="ps-puppet">Puppet</span>
+        <span class="ps-prom">Prometheus</span>
+    </div>
+
+    <div class="card">
+        <textarea id="inputText"
+            placeholder="Paste any text here — a review, an article, a paragraph — and click Analyze…">Artificial intelligence is transforming every industry. Companies are adopting machine learning to automate repetitive tasks and gain insights from data. Natural language processing enables chatbots and virtual assistants to understand human language. However, deploying AI models in production requires robust CI/CD pipelines, monitoring, and configuration management to ensure reliability and scalability.</textarea>
+
+        <button class="btn" id="analyzeBtn" onclick="analyze()">⚡ Analyze</button>
+
+        <div id="results">
+            <div class="result-section">
+                <h3>Sentiment</h3>
+                <span class="badge" id="sentimentBadge"></span>
+                <span id="sentimentDetail" style="margin-left:.5rem;font-size:.85rem;color:#94a3b8;"></span>
+            </div>
+
+            <div class="result-section">
+                <h3>Summary</h3>
+                <div class="summary-text" id="summaryText"></div>
+            </div>
+
+            <div class="result-section">
+                <h3>Stats</h3>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="value" id="origLen">-</div>
+                        <div class="label">Original chars</div>
+                    </div>
+                    <div class="stat">
+                        <div class="value" id="sumLen">-</div>
+                        <div class="label">Summary chars</div>
+                    </div>
+                    <div class="stat">
+                        <div class="value" id="reduction">-</div>
+                        <div class="label">Reduction</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        CI/CD Demo &middot; <a href="/health">/health</a> &middot;
+        <a href="/metrics">/metrics</a>
+    </footer>
+
+    <script>
+        async function analyze() {
+            const btn = document.getElementById('analyzeBtn');
+            const text = document.getElementById('inputText').value.trim();
+            if (!text) return alert('Please enter some text.');
+
+            btn.disabled = true; btn.textContent = '⏳ Analyzing…';
+
+            try {
+                const resp = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text }),
+                });
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || 'Request failed');
+
+                // Sentiment
+                const badge = document.getElementById('sentimentBadge');
+                badge.textContent = data.sentiment.label.toUpperCase();
+                badge.className = 'badge ' + data.sentiment.label;
+                document.getElementById('sentimentDetail').textContent =
+                    `polarity ${data.sentiment.polarity} · subjectivity ${data.sentiment.subjectivity}`;
+
+                // Summary
+                document.getElementById('summaryText').textContent = data.summary;
+
+                // Stats
+                document.getElementById('origLen').textContent = data.original_length;
+                document.getElementById('sumLen').textContent = data.summary_length;
+                const pct = ((1 - data.summary_length / data.original_length) * 100).toFixed(0);
+                document.getElementById('reduction').textContent = pct + '%';
+
+                document.getElementById('results').style.display = 'block';
+            } catch (err) {
+                alert('Error: ' + err.message);
+            } finally {
+                btn.disabled = false; btn.textContent = '⚡ Analyze';
+            }
+        }
+    </script>
+
+</body>
+
+</html>

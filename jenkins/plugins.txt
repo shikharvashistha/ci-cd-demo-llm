@@ -1,0 +1,9 @@
+# Jenkins plugins needed for this demo
+workflow-aggregator:latest
+git:latest
+pipeline-stage-view:latest
+docker-workflow:latest
+configuration-as-code:latest
+job-dsl:latest
+blueocean:latest
+prometheus:latest

@@ -1,0 +1,36 @@
+# ── Prometheus Alert Rules ────────────────────────────────────────────────────
+# These fire when something goes wrong with the LLM service.
+
+groups:
+  - name: llm_app_alerts
+    rules:
+
+      # Alert if the app has been down for > 1 minute
+      - alert: LLMAppDown
+        expr: up{job="llm-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "LLM App is DOWN"
+          description: "The LLM Text Analysis service has been unreachable for over 1 minute."
+
+      # Alert if request latency p95 exceeds 2 seconds
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(llm_request_latency_seconds_bucket[5m])) > 2
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High request latency on LLM App"
+          description: "95th-percentile latency is above 2 seconds for the last 2 minutes."
+
+      # Alert if error rate exceeds 5%
+      - alert: HighErrorRate
+        expr: rate(llm_requests_total{endpoint="/analyze"}[5m]) == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "No requests to /analyze in 5 minutes"
+          description: "The analyze endpoint has received zero requests — possible issue."
