@@ -5,7 +5,7 @@ import json
 import sys
 import os
 
-# Add parent directory to path so we can import app
+# Add parent directory to path so we can import the Flask app module
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from app import app, analyze_sentiment, summarize_text
@@ -14,12 +14,14 @@ from app import app, analyze_sentiment, summarize_text
 @pytest.fixture
 def client():
     """Create a Flask test client."""
+    # Flask provides a built-in test client to call routes without running a server
     app.config["TESTING"] = True
     with app.test_client() as client:
         yield client
 
 
 class TestSentiment:
+    # Pure function tests for sentiment analysis
     def test_positive(self):
         result = analyze_sentiment("I love this product! It is amazing and wonderful.")
         assert result["label"] == "positive"
@@ -42,10 +44,12 @@ class TestSentiment:
 
 
 class TestSummarization:
+    # Summarization should keep short input unchanged
     def test_short_text_unchanged(self):
         text = "Short sentence."
         assert summarize_text(text) == text
 
+    # Longer input should be shortened to fewer sentences
     def test_long_text_shortened(self):
         text = (
             "Machine learning is a branch of artificial intelligence. "
@@ -62,6 +66,7 @@ class TestSummarization:
 
 
 class TestAPI:
+    # Route-level tests using the Flask client
     def test_index_returns_200(self, client):
         resp = client.get("/")
         assert resp.status_code == 200

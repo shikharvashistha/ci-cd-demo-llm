@@ -220,6 +220,7 @@
 
 <body>
 
+    <!-- Page heading and brief description -->
     <header>
         <h1>LLM Text Analysis</h1>
         <p>Sentiment Analysis &amp; Summarization — CI/CD Demo</p>
@@ -234,12 +235,14 @@
         <span class="ps-prom">Prometheus</span>
     </div>
 
+    <!-- Main interaction card: input + results -->
     <div class="card">
         <textarea id="inputText"
             placeholder="Paste any text here — a review, an article, a paragraph — and click Analyze…">Artificial intelligence is transforming every industry. Companies are adopting machine learning to automate repetitive tasks and gain insights from data. Natural language processing enables chatbots and virtual assistants to understand human language. However, deploying AI models in production requires robust CI/CD pipelines, monitoring, and configuration management to ensure reliability and scalability.</textarea>
 
         <button class="btn" id="analyzeBtn" onclick="analyze()">Analyze</button>
 
+        <!-- Results are hidden until the first successful response -->
         <div id="results">
             <div class="result-section">
                 <h3>Sentiment</h3>
@@ -283,9 +286,11 @@
             const text = document.getElementById('inputText').value.trim();
             if (!text) return alert('Please enter some text.');
 
+            // Disable the button so users do not submit twice
             btn.disabled = true; btn.textContent = '⏳ Analyzing…';
 
             try {
+                // Call the Flask API with JSON input
                 const resp = await fetch('/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -294,26 +299,28 @@
                 const data = await resp.json();
                 if (!resp.ok) throw new Error(data.error || 'Request failed');
 
-                // Sentiment
+                // Sentiment: update label and color
                 const badge = document.getElementById('sentimentBadge');
                 badge.textContent = data.sentiment.label.toUpperCase();
                 badge.className = 'badge ' + data.sentiment.label;
                 document.getElementById('sentimentDetail').textContent =
                     `polarity ${data.sentiment.polarity} · subjectivity ${data.sentiment.subjectivity}`;
 
-                // Summary
+                // Summary: show the extracted sentences
                 document.getElementById('summaryText').textContent = data.summary;
 
-                // Stats
+                // Stats: character counts and reduction percentage
                 document.getElementById('origLen').textContent = data.original_length;
                 document.getElementById('sumLen').textContent = data.summary_length;
                 const pct = ((1 - data.summary_length / data.original_length) * 100).toFixed(0);
                 document.getElementById('reduction').textContent = pct + '%';
 
+                // Reveal the results block after data is ready
                 document.getElementById('results').style.display = 'block';
             } catch (err) {
                 alert('Error: ' + err.message);
             } finally {
+                // Re-enable the button after the request finishes
                 btn.disabled = false; btn.textContent = 'Analyze';
             }
         }

@@ -1,11 +1,13 @@
 # Prometheus Configuration - scrapes metrics from app and Jenkins every 15s.
 
 global:
+  # How often Prometheus polls targets and evaluates alert rules
   scrape_interval: 15s
   evaluation_interval: 15s
   scrape_timeout: 10s
 
 rule_files:
+  # Alerting rules loaded from this file
   - "alert_rules.yml"
 
 # Scrape targets
@@ -21,6 +23,7 @@ scrape_configs:
     metrics_path: "/metrics"
     static_configs:
       - targets: ["llm-app:5000"]
+        # Extra labels make it easier to filter in queries
         labels:
           service: "llm-text-analysis"
           environment: "production"
@@ -30,5 +33,6 @@ scrape_configs:
     metrics_path: "/prometheus/"
     static_configs:
       - targets: ["jenkins:8080"]
+        # Tag metrics with a human-friendly service name
         labels:
           service: "jenkins-ci"

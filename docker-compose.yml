@@ -16,8 +16,11 @@ services:
   llm-app:
     build: ./app
     container_name: llm-app
+    # If the host has GPUs, make them visible to the container
+    gpus: all
     ports:
       - "5000:5000"
+    # Healthcheck lets other services wait until the app is ready
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
       interval: 10s
@@ -36,9 +39,12 @@ services:
       - "8080:8080"
       - "50000:50000"
     volumes:
+      # Persist Jenkins config and job history
       - jenkins_home:/var/jenkins_home
+      # Allow Jenkins to run Docker commands on the host
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
+      # Skip the first-run setup wizard for demos
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
     networks:
       - ci-cd-net
@@ -51,6 +57,7 @@ services:
     ports:
       - "4444:4444"
       - "7900:7900"
+    # Increase shared memory for stable Chrome runs
     shm_size: "2g"
     networks:
       - ci-cd-net
@@ -62,8 +69,10 @@ services:
     container_name: selenium-tests
     depends_on:
       llm-app:
+        # Wait for the app's healthcheck
         condition: service_healthy
       selenium-chrome:
+        # Only need the browser container to be started
         condition: service_started
     networks:
       - ci-cd-net
@@ -82,10 +91,12 @@ services:
     ports:
       - "9090:9090"
     volumes:
+      # Read-only config so the container cannot modify it
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
       - prometheus_data:/prometheus
     command:
+      # Point Prometheus to the mounted config file
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--web.enable-lifecycle"
     depends_on:

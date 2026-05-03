@@ -2,6 +2,7 @@
 # demo.sh - Interactive walkthrough for class presentation
 set -euo pipefail
 
+# ANSI colors for slide-like output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
@@ -9,6 +10,7 @@ BOLD='\033[1m'
 NC='\033[0m'
 
 pause() {
+    # Small helper to pause between sections
     echo ""
     echo -e "${YELLOW}   Press ENTER to continue...${NC}"
     read -r
@@ -51,7 +53,7 @@ echo "Also show the API directly:"
 echo -e "  ${GREEN}curl -s http://localhost:5000/health | python3 -m json.tool${NC}"
 echo ""
 
-# Actually call the health endpoint
+# Actually call the health endpoint so the class can see live JSON output
 echo "Health check result:"
 curl -s http://localhost:5000/health 2>/dev/null | python3 -m json.tool 2>/dev/null || echo "(App not running — start with: docker compose up -d)"
 pause
@@ -127,7 +129,7 @@ echo "  4. Try: llm_request_latency_seconds_bucket"
 echo "  5. Go to Status → Targets → Show all monitored services"
 echo ""
 
-# Generate some traffic for the demo
+# Generate some traffic for the demo so Prometheus has data
 echo "Generating sample requests to create metrics..."
 for i in $(seq 1 5); do
     curl -sf -X POST http://localhost:5000/analyze \

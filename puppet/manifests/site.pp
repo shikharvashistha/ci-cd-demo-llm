@@ -34,6 +34,7 @@ file { '/opt/llm-app':
   owner   => 'llmapp',
   group   => 'llmapp',
   mode    => '0755',
+  # Ensure user exists before creating the directory
   require => User['llmapp'],
 }
 
@@ -101,11 +102,13 @@ else
   exit 1
 fi
 ',
+  # Require dependencies before creating the script
   require => [File['/opt/llm-app'], Package['curl'], Package['jq']],
 }
 
 # 6. Deployment log
 exec { 'log_puppet_run':
+  # Append a log entry each time Puppet applies this manifest
   command => '/bin/bash -c "echo \"[$(date -Iseconds)] Puppet applied configuration successfully\" >> /opt/llm-app/logs/puppet.log"',
   require => File['/opt/llm-app/logs'],
 }

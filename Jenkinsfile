@@ -9,11 +9,13 @@ pipeline {
     agent any
 
     environment {
+        // Image name and version tag for Docker builds
         APP_IMAGE   = 'llm-text-analysis'
         APP_VERSION = "${env.BUILD_NUMBER ?: 'dev'}"
     }
 
     options {
+        // Prevent long-hanging builds and keep only recent history
         timeout(time: 15, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
@@ -24,6 +26,7 @@ pipeline {
             steps {
                 echo 'Pulling latest code from GitHub...'
                 checkout scm
+                // Useful for showing which commit is being tested
                 sh 'echo "Commit: $(git rev-parse --short HEAD)"'
             }
         }
@@ -32,6 +35,7 @@ pipeline {
             steps {
                 echo 'Building the LLM app Docker image...'
                 dir('app') {
+                    // Build two tags: one for this build, one for "latest"
                     sh "docker build -t ${APP_IMAGE}:${APP_VERSION} ."
                     sh "docker build -t ${APP_IMAGE}:latest ."
                 }
@@ -61,6 +65,7 @@ pipeline {
         stage('4. Selenium UI Tests') {
             steps {
                 echo 'Starting the app + Selenium Chrome...'
+                // Spin up only what the UI tests need
                 sh 'docker compose up -d llm-app selenium-chrome'
                 sh 'sleep 10'
 
@@ -69,6 +74,7 @@ pipeline {
             }
             post {
                 always {
+                    // Always clean up containers to keep builds repeatable
                     echo 'Cleaning up test containers...'
                     sh 'docker compose down llm-app selenium-chrome || true'
                 }

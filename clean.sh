@@ -2,6 +2,7 @@
 # clean.sh - Stop and remove all CI/CD demo resources
 set -euo pipefail
 
+# ANSI color codes for readable terminal output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
@@ -10,7 +11,7 @@ NC='\033[0m'
 echo -e "${YELLOW}CI/CD Demo - Cleanup${NC}"
 echo ""
 
-# Stop and remove containers, networks
+# Stop and remove containers and networks created by docker compose
 echo -e "${YELLOW}[1/3] Stopping containers...${NC}"
 docker compose down 2>/dev/null || true
 echo -e "${GREEN}  Containers stopped.${NC}"
@@ -20,7 +21,7 @@ echo -e "${YELLOW}[2/3] Removing volumes...${NC}"
 docker compose down -v 2>/dev/null || true
 echo -e "${GREEN}  Volumes removed.${NC}"
 
-# Remove built images
+# Remove built images so next demo starts from a clean slate
 echo -e "${YELLOW}[3/3] Removing built images...${NC}"
 for img in ci-cd-demo-llm-llm-app ci-cd-demo-llm-jenkins ci-cd-demo-llm-puppet ci-cd-demo-llm-selenium-tests; do
     if docker image inspect "$img" &>/dev/null; then

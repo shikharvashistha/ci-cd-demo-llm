@@ -10,6 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
+# Container hostnames from docker-compose
 APP_URL = "http://llm-app:5000"
 SELENIUM_HUB = "http://selenium-chrome:4444/wd/hub"
 WAIT_TIMEOUT = 20  # seconds
@@ -19,6 +20,7 @@ WAIT_TIMEOUT = 20  # seconds
 @pytest.fixture(scope="module")
 def wait_for_app():
     """Block until the Flask app is reachable."""
+    # Keep retrying so tests do not start before the app is ready
     for _ in range(30):
         try:
             r = requests.get(f"{APP_URL}/health", timeout=2)
@@ -38,7 +40,7 @@ def driver(wait_for_app):
     opts.add_argument("--disable-dev-shm-usage")
     opts.add_argument("--headless")
 
-    # Wait for Selenium Grid to be ready
+    # Wait for Selenium Grid to be ready, then yield a driver for tests
     for _ in range(15):
         try:
             d = webdriver.Remote(command_executor=SELENIUM_HUB, options=opts)
@@ -54,6 +56,7 @@ def driver(wait_for_app):
 
 
 class TestPageLoad:
+    # Basic smoke tests that the page renders
     def test_title(self, driver):
         driver.get(APP_URL)
         assert "LLM Text Analysis" in driver.title
@@ -76,6 +79,7 @@ class TestAnalyzeWorkflow:
     NEGATIVE_TEXT = "This is broken, terrible, awful. Nothing works and everything fails."
 
     def _submit_text(self, driver, text):
+        # Shared helper: open page, enter text, click Analyze, wait for results
         driver.get(APP_URL)
         textarea = driver.find_element(By.ID, "inputText")
         textarea.clear()
@@ -115,6 +119,7 @@ class TestAnalyzeWorkflow:
 
 
 class TestEndpoints:
+    # API-level checks to ensure health and metrics are exposed
     def test_health(self):
         r = requests.get(f"{APP_URL}/health")
         assert r.status_code == 200

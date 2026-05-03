@@ -6,16 +6,20 @@ groups:
 
       # App unreachable for > 1 minute
       - alert: LLMAppDown
+        # PromQL expression: up==0 means the target is down
         expr: up{job="llm-app"} == 0
+        # Only fire if it stays down for this long
         for: 1m
         labels:
           severity: critical
         annotations:
+          # Annotations show up in alert notifications
           summary: "LLM App is DOWN"
           description: "The LLM Text Analysis service has been unreachable for over 1 minute."
 
       # Request latency p95 > 2 seconds
       - alert: HighLatency
+        # p95 latency from the histogram buckets
         expr: histogram_quantile(0.95, rate(llm_request_latency_seconds_bucket[5m])) > 2
         for: 2m
         labels:
@@ -26,6 +30,7 @@ groups:
 
       # No requests in 5 minutes
       - alert: HighErrorRate
+        # Here "error" is modeled as no requests at all
         expr: rate(llm_requests_total{endpoint="/analyze"}[5m]) == 0
         for: 5m
         labels:

@@ -2,6 +2,7 @@
 # setup.sh - Build and start all CI/CD demo services
 set -euo pipefail
 
+# ANSI colors for nicer terminal output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
@@ -13,7 +14,7 @@ echo "CI/CD Demo - LLM Text Analysis Service"
 echo "Setting up all services..."
 echo -e "${NC}"
 
-# Pre-flight checks
+# Pre-flight checks (fail fast if Docker is missing)
 echo -e "${YELLOW}[1/4] Checking prerequisites...${NC}"
 
 if ! command -v docker &>/dev/null; then
@@ -30,17 +31,17 @@ fi
 echo -e "   Docker $(docker --version | grep -oP '\d+\.\d+\.\d+')"
 echo -e "   Docker Compose $(docker compose version --short)"
 
-# Build
+# Build all Docker images in parallel
 echo ""
 echo -e "${YELLOW}[2/4] Building Docker images...${NC}"
 docker compose build --parallel
 
-# Start
+# Start all services in the background
 echo ""
 echo -e "${YELLOW}[3/4] Starting all services...${NC}"
 docker compose up -d
 
-# Wait for health checks
+# Wait for health checks so the demo starts reliably
 echo ""
 echo -e "${YELLOW}[4/4] Waiting for services to become healthy...${NC}"
 
@@ -57,7 +58,7 @@ for i in $(seq 1 30); do
     sleep 2
 done
 
-# Wait for Jenkins
+# Wait for Jenkins (can take a few minutes to start)
 echo -n "   Jenkins:     "
 for i in $(seq 1 60); do
     if curl -sf http://localhost:8080/login &>/dev/null; then
@@ -83,7 +84,7 @@ for i in $(seq 1 20); do
     sleep 2
 done
 
-# Wait for Selenium
+# Wait for Selenium Grid
 echo -n "   Selenium:    "
 for i in $(seq 1 20); do
     if curl -sf http://localhost:4444/wd/hub/status &>/dev/null; then
