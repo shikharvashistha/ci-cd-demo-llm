@@ -66,17 +66,17 @@ pipeline {
             steps {
                 echo 'Starting the app + Selenium Chrome...'
                 // Spin up only what the UI tests need
-                sh 'docker compose up -d llm-app selenium-chrome'
+                sh 'docker-compose up -d llm-app selenium-chrome'
                 sh 'sleep 10'
 
                 echo 'Running Selenium UI tests...'
-                sh 'docker compose run --rm selenium-tests'
+                sh 'docker-compose run --rm selenium-tests'
             }
             post {
                 always {
                     // Always clean up containers to keep builds repeatable
                     echo 'Cleaning up test containers...'
-                    sh 'docker compose down llm-app selenium-chrome || true'
+                    sh 'docker-compose down llm-app selenium-chrome || true'
                 }
             }
         }
@@ -84,7 +84,7 @@ pipeline {
         stage('5. Puppet Configuration') {
             steps {
                 echo 'Applying Puppet configuration...'
-                sh 'docker compose run --rm puppet'
+                sh 'docker-compose run --rm puppet'
                 echo 'Environment configured by Puppet.'
             }
         }
@@ -92,7 +92,7 @@ pipeline {
         stage('6. Deploy to Production') {
             steps {
                 echo 'Deploying the LLM app to production...'
-                sh 'docker compose up -d llm-app prometheus'
+                sh 'docker-compose up -d llm-app prometheus'
                 sh 'sleep 5'
                 sh 'curl -sf http://localhost:5000/health | python3 -m json.tool'
                 echo 'Deployment successful. App is live at http://localhost:5000'

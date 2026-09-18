@@ -5,7 +5,7 @@ USER root
 
 # Install Docker CLI so Jenkins can build/run images
 RUN apt-get update && \
-    apt-get install -y docker.io curl && \
+    apt-get install -y docker.io curl docker-compose && \
     rm -rf /var/lib/apt/lists/*
 
 # Pre-install plugins listed in plugins.txt
